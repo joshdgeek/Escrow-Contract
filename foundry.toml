@@ -3,4 +3,9 @@ src = "src"
 out = "out"
 libs = ["lib"]
 
+remappings = [
+    '@chainlink/contracts/src/=lib/chainlink-brownie-contracts/contracts/src/',
+    '@openzeppelin-contracts/contracts/utils/=lib/openzeppelin-contracts/contracts/utils',
+]
+
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

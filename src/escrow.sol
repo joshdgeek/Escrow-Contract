@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-contract RealEstateEscrow {
+import "@openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
+
+contract RealEstateEscrow is ReentrancyGuard {
     address admin;
     address developer;
 
@@ -13,24 +15,11 @@ contract RealEstateEscrow {
     uint256 public deadline = timeStart + 2 minutes;
     bool public withdrawStatus = false;
 
-    event paymentRecieved(
-        address indexed investorAddress,
-        uint256 amountDeposited,
-        bool status
-    );
-    event withdrawFunds(
-        address indexed investorAddress,
-        uint256 amountWithdrawn,
-        bool status
-    );
-    event successfullFunding(uint amuntFunded, bool fundStatus);
+    event paymentRecieved(address indexed investorAddress, uint256 amountDeposited, bool status);
+    event withdrawFunds(address indexed investorAddress, uint256 amountWithdrawn, bool status);
+    event successfullFunding(uint256 amuntFunded, bool fundStatus);
 
-    constructor(
-        address _admin,
-        address _developer,
-        uint256 _fundTarget,
-        uint256 _deadline
-    ) {
+    constructor(address _admin, address _developer, uint256 _fundTarget, uint256 _deadline) {
         admin = _admin; //only admin access,
         developer = _developer; //developer address
         fundTarget = _fundTarget; //SET FUND TARGET
@@ -42,12 +31,11 @@ contract RealEstateEscrow {
     }
 
     //release funds to developers
-    function releaseToDeveloper() public onlyAdmin {
+    function releaseToDeveloper() public {
         require(!withdrawStatus, "funds withdrawn");
         require(totalFunded >= fundTarget, "Cannot release yet");
         withdrawStatus = true;
-        totalFunded -= fundTarget;
-        (bool success, ) = payable(developer).call{value: fundTarget}("");
+        (bool success,) = payable(developer).call{value: fundTarget}("");
         require(success, "transfer failed");
         emit successfullFunding(fundTarget, true);
     }
@@ -65,19 +53,23 @@ contract RealEstateEscrow {
 
         isInvestor[msg.sender] += amount;
         totalFunded += amount;
+
+        //check if goal is reached
+        if (fundTarget == totalFunded) {
+            releaseToDeveloper();
+        }
+
         emit paymentRecieved(msg.sender, amount, true);
     }
 
-    function withdrawal() public {
+    function withdrawal() external nonReentrant {
         uint256 amountAllowedToWithdraw = isInvestor[msg.sender];
         require(totalFunded < fundTarget, "Target reached - cannot withdraw");
 
         isInvestor[msg.sender] -= amountAllowedToWithdraw;
         totalFunded -= amountAllowedToWithdraw;
 
-        (bool success, ) = payable(msg.sender).call{
-            value: amountAllowedToWithdraw
-        }("");
+        (bool success,) = payable(msg.sender).call{value: amountAllowedToWithdraw}("");
         require(success, "transfer failed");
         emit withdrawFunds(msg.sender, amountAllowedToWithdraw, true);
     }

@@ -61,8 +61,7 @@ contract RealEstateEscrowTest is Test {
 
     function testDeveloperWithdrawal() public {
         vm.startPrank(admin);
-        escrow.investFunction{value: 3 ether}(); //invest 2 ether
-        escrow.releaseToDeveloper(); //release funds to developer
+        escrow.investFunction{value: 3 ether}(); //invest 3 ether, funds automatically withdraws
         vm.stopPrank();
 
         assertEq(developer.balance, 3 ether); //check developer balance before the deadline
