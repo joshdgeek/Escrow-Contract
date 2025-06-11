@@ -51,6 +51,7 @@ contract RealEstateEscrowTest is Test {
         assertEq(escrow.totalFunded(), 2 ether); // verify the totalFunded state
 
         vm.startPrank(admin);
+        vm.warp(block.timestamp + 10 minutes);
         escrow.withdrawal(); // admin withdraws his funds
         vm.stopPrank();
 

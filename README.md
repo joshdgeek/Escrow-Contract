@@ -1,6 +1,6 @@
-## Foundry
+## ESCROW-CONTRACT
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+**A Solidity smart contract enabling decentralized real‑estate fundraising with a funding goal, deadline, automated fund release, and refund protection.**
 
 Foundry consists of:
 
@@ -48,7 +48,7 @@ $ anvil
 ### Deploy
 
 ```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
+$ forge script script/escrow.s.sol:EscrowScript --rpc-url <your_rpc_url> --private-key <your_private_key>
 ```
 
 ### Cast
