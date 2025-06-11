@@ -15,24 +15,11 @@ contract RealEstateEscrow is ReentrancyGuard {
     uint256 public deadline = timeStart + 2 minutes;
     bool public withdrawStatus = false;
 
-    event paymentRecieved(
-        address indexed investorAddress,
-        uint256 amountDeposited,
-        bool status
-    );
-    event withdrawFunds(
-        address indexed investorAddress,
-        uint256 amountWithdrawn,
-        bool status
-    );
+    event paymentRecieved(address indexed investorAddress, uint256 amountDeposited, bool status);
+    event withdrawFunds(address indexed investorAddress, uint256 amountWithdrawn, bool status);
     event successfullFunding(uint256 amuntFunded, bool fundStatus);
 
-    constructor(
-        address _admin,
-        address _developer,
-        uint256 _fundTarget,
-        uint256 _deadline
-    ) {
+    constructor(address _admin, address _developer, uint256 _fundTarget, uint256 _deadline) {
         admin = _admin; //only admin access,
         developer = _developer; //developer address
         fundTarget = _fundTarget; //SET FUND TARGET
@@ -48,7 +35,7 @@ contract RealEstateEscrow is ReentrancyGuard {
         require(!withdrawStatus, "funds withdrawn");
         require(totalFunded >= fundTarget, "Cannot release yet");
         withdrawStatus = true;
-        (bool success, ) = payable(developer).call{value: fundTarget}("");
+        (bool success,) = payable(developer).call{value: fundTarget}("");
         require(success, "transfer failed");
         emit successfullFunding(fundTarget, true);
     }
@@ -83,9 +70,7 @@ contract RealEstateEscrow is ReentrancyGuard {
         isInvestor[msg.sender] -= amountAllowedToWithdraw;
         totalFunded -= amountAllowedToWithdraw;
 
-        (bool success, ) = payable(msg.sender).call{
-            value: amountAllowedToWithdraw
-        }("");
+        (bool success,) = payable(msg.sender).call{value: amountAllowedToWithdraw}("");
         require(success, "transfer failed");
         emit withdrawFunds(msg.sender, amountAllowedToWithdraw, true);
     }

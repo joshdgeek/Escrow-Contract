@@ -12,12 +12,7 @@ contract EscrowScript is Script {
     function run() public {
         vm.startBroadcast();
 
-        escrow = new RealEstateEscrow(
-            msg.sender,
-            msg.sender,
-            3 ether,
-            block.timestamp + 30 days
-        );
+        escrow = new RealEstateEscrow(msg.sender, msg.sender, 3 ether, block.timestamp + 30 days);
         console.log("Escrow contract deployed at:", address(escrow));
 
         vm.stopBroadcast();
